@@ -11,6 +11,14 @@ import {
   getTasteProfile,
 } from "../lib/recommendations";
 
+type ScoredGame = Game & {
+  score: number;
+  matchPercentage: number;
+  matchedTags: string[];
+  missedTags: string[];
+  reasons: string[];
+};
+
 export default function Home() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [avoidTags, setAvoidTags] = useState<string[]>([]);
@@ -65,10 +73,6 @@ export default function Home() {
 
         score -= avoidedHits.length * 18;
 
-        if (selectedTags.length === 0) {
-          score = game.features.includes("classic") ? 35 : 25;
-        }
-
         const matchPercentage =
           selectedTags.length === 0
             ? 0
@@ -101,7 +105,9 @@ export default function Home() {
       })
       .sort((a, b) => {
         if (sortMode === "newest") return b.year - a.year;
+
         if (sortMode === "oldest") return a.year - b.year;
+
         if (sortMode === "shortest") {
           const order = { short: 1, medium: 2, long: 3, massive: 4 };
           return order[a.length] - order[b.length];
@@ -204,7 +210,7 @@ export default function Home() {
                   <div>
                     <p className="text-sm text-zinc-400">Current top pick</p>
                     <h2 className="text-2xl font-black">
-                      {topRecommendation?.title ?? "Choose preferences"}
+                      {topRecommendation?.title ?? "No pick yet"}
                     </h2>
                   </div>
 
@@ -243,8 +249,8 @@ export default function Home() {
                     </div>
                   </>
                 ) : (
-                  <div className="grid h-64 place-items-center rounded-2xl border border-dashed border-white/15 text-zinc-500">
-                    Your recommendation will appear here.
+                  <div className="grid h-64 place-items-center rounded-2xl border border-dashed border-white/15 p-6 text-center text-zinc-500">
+                    Choose a few preferences to generate your top pick.
                   </div>
                 )}
               </div>
@@ -476,19 +482,19 @@ export default function Home() {
                       className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/70 shadow-xl shadow-black/20 transition hover:border-white/20"
                     >
                       <div className="grid gap-0 md:grid-cols-[260px_1fr]">
-  <div className="relative min-h-full overflow-hidden bg-black">
-    <img
-      src={game.image}
-      alt={game.title}
-      className="absolute inset-0 h-full w-full object-cover"
-    />
+                        <div className="relative min-h-[260px] overflow-hidden bg-black md:min-h-full">
+                          <img
+                            src={game.image}
+                            alt={game.title}
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
 
-    <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
 
-    <div className="absolute left-4 top-4 z-20 rounded-full bg-black/75 px-3 py-1 text-sm font-black backdrop-blur">
-      #{index + 1}
-    </div>
-  </div>
+                          <div className="absolute left-4 top-4 z-20 rounded-full bg-black/75 px-3 py-1 text-sm font-black backdrop-blur">
+                            #{index + 1}
+                          </div>
+                        </div>
 
                         <div className="p-6">
                           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
